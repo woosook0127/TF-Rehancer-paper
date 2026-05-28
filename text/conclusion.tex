@@ -1,0 +1,24 @@
+\chapter{Conclusion}
+\label{chap:conclusion}
+
+\section {Conclusion}
+This study proposes a novel approach to text-driven talking head generation
+that combines the strengths of text-based audio generation models with audio-driven video generation models.
+The proposed method maintains real-time inference performance while achieving high-quality results.
+
+\section{limitations and future work}
+\label{sec:limitations_and_future_work}
+The proposed method has some limitations.
+First, the proposed method is not suitable for generating a talking head of a person who is not in the training data,
+both on the audio and video side. 
+It was observed that if the distribution of the voice in the audio-visual pair diverges significantly,
+the quality of the generated result can be adversely affected. 
+
+Second, 
+Although the proposed method improved synchronization performance with audio distributions not previously encountered during training,
+it was noted that there are still some unstable elements present. Notably, at the end of the speech segments, there were instances of stuttering or jittery movements.
+
+
+Therefore, to address these shortcomings, it would be beneficial to explore a method that uses the audio from the original video as a prior and conditions the new audio information based on this study.
+By leveraging the characteristics of the original audio as a reference point, the model could potentially learn to adapt more effectively to new audio inputs, leading to improved synchronization and stability. This approach could help in minimizing issues like the stuttering motions observed at the ends of speech segments.
+

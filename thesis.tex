@@ -1,0 +1,111 @@
+% 사용 가능한 옵션 리스트는 아래와 같습니다.
+% 'doctor - master': 박사인가 석사인가
+% 'final': 최종본일 경우 추가
+% 'twosides - oneside': 양면인가 단면인가
+% 'krabst': 국문초록
+% 'krack': 한글 감사의 글
+% 'asym': 홀수쪽과 짝수쪽에 제본 여백을 5mm 주고 반대쪽 여백을 5mm 줄임
+%         대부분의 제본소에서는 중앙에 있는것을 선호함 (제본소 문의 바람)
+%
+% 예제
+% \documentclass[master,final,oneside]{SGUThesis}
+
+% 기본옵션은 [doctor,twosides,draft] 입니다.
+% \documentclass[doctor,final,twoside,krabst,krack]{SGUThesis}
+% \documentclass[doctor,final,krabst,oneside]{SGUThesis}
+\documentclass[master, final,oneside]{setup/SGUThesis}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   아래 정보를 꼭 바꾸세요!                   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 첫 번째 인수의 숫자
+% 0 : 제목이 10자 이하일 경우
+% 1 : 제목이 10자 이상 1줄일 경우
+% 2 : 제목이 2줄 이상일 경우
+% 3 : 제목이 2 셋팅에서도 너무 길 경우
+% 두 번째 인수는 영문 제목, 세 번째 인수는 한글 제목(국문초록 추가할 때 사용)
+% \title{2}{
+% Signal Processing Based on \\ Maximum Likelihood Estimation \\ for Robust Speech Recognition
+% }{
+% 강인 음성인식을 위한 최대 우도 추정 기반 신호처리
+% }
+% \title{2}{
+% Preprocessing Based on Maximum Likelihood of a Nonstationary Speech Distribution for Robust Speech Recognition
+% }{
+% 강인 음성인식을 위한 비정상성 음성 분포의 최대 우도 추정 기반 전처리
+% }
+\title{3}{
+    NeRF-THIS: Neural Radiance Field based Talking Head Synthesis Incorporating Text-to-Speech
+}{
+    
+}
+
+% 본인의 이름 성,이름 순으로 한글자씩. 한글 이름은 한칸에 모두 적음.
+\author[korean]{고 재 현}{}{}
+\author[chinese]{高}{在}{賢}
+\author[english]{Ko}{Jae}{Hyun}
+
+% 지도교수님 성함 {한자이름}{영문이름}
+\advisor{박 형 민}{박 형 민}{Hyung-Min Park}
+
+% 전공
+\department{AI}
+
+% 졸업년월
+\graduateDate{2023}{12}
+
+% 제출 연,월,일
+\submitDate{2023}{12}{18}
+
+% 본문 줄간격 (규정: 160 - 200)
+\captionLineSpacing{160}
+\abstractLineSpacing{200}
+\krAbstractLineSpacing{200}
+\TOCLineSpacing{200}
+\contentLineSpacing{250}
+\acknowledgementLineSpacing{200}
+
+% \captionLineSpacing{150}
+% \abstractLineSpacing{150}
+% \krAbstractLineSpacing{150}
+% \TOCLineSpacing{150}
+% \contentLineSpacing{150}
+% \acknowledgementLineSpacing{150}
+
+% TOC, LOF, LIT에 헤더를 추가하고 싶은 경우에 주석 해제
+%\addTOCHeader
+
+% 본문에 헤더를 추가하고 싶은 경우에 주석 해제
+%\addContentHeader
+
+% 참고문헌에 헤더를 추가하고 싶은 경우에 주석 해제
+%\addBibHeader                                                                                                                 
+
+% 스캔한 승인서가 있을 경우 파일 이름 입력. 스캔 파일의 사이즈는 A4이어야 한다.
+\approvalScan{covers/approval.pdf}
+
+% 패키지, 단축 키를 모아놓은 파일
+\input{setup/preamble.tex}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%         본문 파일을 이 아래에 추가하세요!        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 꼭 addContents함수를 이용해서 추가해야 양면출력이 제대로 됩니다!
+% \addContents{introduction}
+\addContents{text/chapter1}
+\addContents{text/chapter2}
+\addContents{text/chapter3}
+\addContents{text/chapter4}
+\addContents{text/conclusion}
+\addAppendix{text/appendix}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                  여기까지 추가                   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}

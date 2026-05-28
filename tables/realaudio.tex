@@ -1,0 +1,24 @@
+\begin{table*}[t]
+\begin{center}
+\setlength{\tabcolsep}{10pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{l cc  ccc cc} 
+\hline
+Methods                              & PSNR[DB]$\uparrow$ & LPIPS$\downarrow$ & Training Time$\downarrow$ & Inference FPS$\uparrow$  \\   
+Ground Truth                         & $\infty$       &  $0$              & -                         & -   \\
+\hline
+MakeItTalk~\cite{zhou2020makelttalk} & -       & -         & -     & $9$            \\
+Wav2Lip~\cite{prajwal2020lip}        & $30.94$ & $0.0639$ & -     & $11$            \\
+AD-NeRF~\cite{guo2021ad}             & $25.53$ & $0.0901$ & $36$h & $0.07$          \\
+Rad-NeRF~\cite{tang2022radnerf}      & $34.00$ & $0.0387$ & $\mathbf{8}$h  & $\mathbf{51.64}$ \\
+\hline
+Ours                                 & $\mathbf{35.29}$ & $\mathbf{0.0360}$ & $\mathbf{8}$h  & $\mathbf{60.12}$ \\
+
+\hline 
+\end{tabular}
+\end{center}
+\vspace{-0.3cm}
+\caption{\textbf{Quantitative comparison under real audio condition.} 
+}
+\label{tab:Quantitative}
+\end{table*}

@@ -1,0 +1,75 @@
+\chapter{Experiments}
+\label{chap:Experiments}
+
+\section{Dataset and Evaluation Metrics}
+\label{sec:dataset_and_metrics}
+To evaluate the proposed method, the Obama dataset from AD-NeRF~\cite{guo2021ad} was used, maintaining the same data split for training and testing.
+Given the availability of ground truth for the same identity, metrics such as PSNR and LPIPS~\cite{zhang2018perceptual} can be utilized for Quantitative evaluation.
+
+% on a single NVIDIA GeForce RTX 3090 GPU.
+
+\section{Quantitative Evaluation Results. }
+\label{sec:eval_Quantitative}
+In Table \ref{tab:Quantitative}, a comparison of each model's PSNR, LPIPS, and real-time performance is presented, specifically when audio input is provided.
+The MakeItTalk model~\cite{zhou2020makelttalk} is unable to replicate the exact head poses found in the ground truth video,
+hence PSNR and LPIPS metrics are not reported for it.
+Inference FPS data is collected in RTX 3090 GPU with Intel Zeon 6230R CPU environment.
+\input{tables/realaudio.tex}
+
+\section{Qualitative Evaluation Results. }
+\label{sec:eval_Qualitative}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/figure_chap_4/qualitative.png}
+    \caption{Qualitative evaluation results}
+    \label{fig:qualitative}
+\end{figure}
+\input{tables/userstudy.tex}
+\ref{fig:qualitative} represents, in order from top to bottom, GT (Ground Truth), AD-NeRF, Rad-NeRF, and the Proposed model.
+
+The proposed model is designed to be trained with a smaller amount of input data.
+As a result, while it may slightly lag behind other models in terms of textural details, it excels in accurately replicating eye movements and lip expressions.
+This focus on nuanced facial movements, particularly in the eyes and mouth, enables the model to achieve superior performance in these areas, despite the trade-off in texture quality.
+
+\subsection{User Study}
+\label{sec:user_study}
+To conduct a thorough assessment of the quality of generated talking faces, a comprehensive user study is organized with the participation of 10 attendees.
+This study involves the evaluation of 10 synthesized videos, created through various methods in a cross-driven context.
+The attendees focus on three key aspects: the synchronization of audio with lip movements, the quality of the image generation, and the overall realism of the videos.
+This evaluation aims to determine the effectiveness and authenticity of different synthetic video generation techniques.
+The results of this user study are shown in Table \ref{tab:userstudy}.
+\input{tables/userstudy.tex}
+The proposed model outperforms in the boader effact perspective while the RAD-NeRF model~\cite{tang2022radnerf} is rated higher in terms of border effects.
+
+\section{Advantages of TTS-integrated Synthesis}
+In this context, the focus is on examining the advantages of simultaneously generating Text-to-Speech (TTS) along with the visual components,
+compared to a cascading approach where the voice is generated separately and sequentially. 
+
+\subsection{Synchronization}
+\label{sec:synchronization}
+When an avatar trained on Barack Obama's data was generated using a voice synthesized from the voice of a different author, it was observed that the sync quality with the original audio was compromised.
+This discrepancy can be attributed to differences in voice characteristics such as volume and timbre between the synthesized voice and Obama's original voice. These domain differences highlight the challenges in achieving seamless audio-visual synchronization in avatars when the audio used for synthesis differs significantly from the data the avatar model was trained on.
+However, it was found that utilizing tokens generated during the Text-to-Speech (TTS) process yielded better synchronization rates compared to the method of generating the talking head after the audio synthesis.
+This suggests that integrating TTS-generated tokens directly into the talking head generation process allows for more accurate and synchronized movements of the facial features, particularly the lips, to match the speech. This approach indicates a more efficient and cohesive method for creating lifelike and synchronized talking avatars.
+These performance improvements were confirmed in a user study\ref{tab:userstudy}, where it was found that using more compressed encoded tokens achieved similar performance to that of ASR (Automatic Speech Recognition) tokens.
+
+\subsection{Efficiency}
+\label{sec:efficiency}
+
+When leveraging tokens generated during the Text-to-Speech (TTS) process for facial synthesis, a comparative analysis was conducted to evaluate how much more efficient this method is in terms of synthesis time, especially when compared to the cascading approach of synthesis. This comparison was made across varying lengths of audio, to understand the impact of audio duration on the synthesis efficiency. The aim was to determine if using TTS-generated tokens directly in facial synthesis significantly reduces the time required for the process, and how this efficiency scales with longer or shorter audio inputs.
+This comperison is shown in Table \ref{tab:efficiency}, where the models to inference were aleady loaded onto the GPU.
+While there is a clear difference in efficiency between using TTS-generated tokens for facial synthesis and the cascading approach, it was observed that external factors, such as the time taken to complete the video processing with ffmpeg, significantly impact the overall performance. This means that the improvements gained from the model's efficiency in facial synthesis were somewhat offset by the time required for video completion through ffmpeg. As a result, the expected level of efficiency improvement was not fully realized due to these external processing factors. 
+\begin{table}
+    \centering
+    \begin{tabular}{ccc}
+        \hline
+        Audio Duration & End-to-End & Cascading \\
+        \hline
+        7s & 4.41s & 6.83s \\
+        \hline
+        15s & 12.87s & 16.24s \\
+        \hline
+    \end{tabular}
+    \caption{Comparison of synthesis time for TTS-integrated and cascading approaches}
+    \label{tab:efficiency}
+\end{table}

@@ -1,0 +1,35 @@
+\chapter{Introduction}
+\label{chap:introduction}
+
+\section{Motivation}
+\label{sec:motivation}
+The field of talking head generation has been gaining substantial momentum in recent times.
+This burgeoning area of research is becoming increasingly crucial in various sectors, particularly in cultural and content-driven industries such as gaming.
+Moreover, its applications extend beyond entertainment, offering significant potential in interactive systems like kiosks, enhancing user experience with more engaging and personalized interactions.
+
+However, it's noteworthy that research in the field of talking head generation has predominantly been audio-based. \cite{wav2lip, makeitalk}
+This focus has shaped the development and evolution of the technology, with a significant emphasis on how auditory inputs can drive and enhance the realism and effectiveness of generated visual content.
+Even in text-based methods like Text2Video\cite{Text2Video}, there is an essential step to ensure that the generated video is synchronized with the audio.
+
+In the Text-to-Speech (TTS) process, audio features are generated and then decoded to produce the final audio output.\cite{Fastspeech2, Vall-E-X}
+However, extracting these features again from the completed audio represents a computational redundancy.
+This is because the same features, already generated during the TTS process, are being reprocessed, leading to unnecessary computational effort and inefficiency.
+
+Therefore, in this study, the aim is to utilize the features generated during the Text-to-Speech (TTS) process for Talking Head generation as well.
+By doing so, the research seeks to enhance efficiency by repurposing the already computed audio features, thereby avoiding the redundant step of re-extracting these features from the final audio output.
+This approach not only streamlines the process but also potentially improves the synchronization between the audio and the visual elements in Talking Head generation.
+
+
+\section{Overview of the proposed method}
+\label{sec:overview} 
+Contributions of this paper are as follows:
+\begin{enumerate}
+    \item We propose a novel approach to text-driven talking head generation that combines the strengths of text-based audio generation models with audio-driven video generation models.
+    \item We build a Neural Radiance Fields (NeRF) based talking head generation architecture integrated with text-to-speech(TTS). This approch has a number of advantages.
+    \begin{itemize}
+        \item it only needs 5 min of trainning data.
+        \item It is not constrained by Automatic Speech Recognition (ASR) models, thereby offering freedom from language barriers.
+        \item It can support real-time inference in low computational cost.
+    \end{itemize}
+    \item We conduct extensive experiments to demonstrate the effectiveness of our proposed method.
+\end{enumerate}
