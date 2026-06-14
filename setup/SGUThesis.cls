@@ -116,7 +116,6 @@
 \bibliographystyle{ieeetr}
 
 \RequirePackage{ifthen}       % 추가 패키지 설정
-\RequirePackage{etoolbox}
 \RequirePackage[strict]{changepage}
 \RequirePackage{emptypage}
 \RequirePackage{graphicx,xcolor}
@@ -732,4 +731,5 @@
   \setlength\parindent{0mm}
   \addevenpage
 }
+
 

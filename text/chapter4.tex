@@ -1,75 +1,59 @@
 \chapter{Experiments}
-\label{chap:Experiments}
+\label{chap:experiments}
 
-\section{Dataset and Evaluation Metrics}
-\label{sec:dataset_and_metrics}
-To evaluate the proposed method, the Obama dataset from AD-NeRF~\cite{guo2021ad} was used, maintaining the same data split for training and testing.
-Given the availability of ground truth for the same identity, metrics such as PSNR and LPIPS~\cite{zhang2018perceptual} can be utilized for Quantitative evaluation.
+\section{Experimental Setup}
+\label{sec:exp_setup}
 
-% on a single NVIDIA GeForce RTX 3090 GPU.
+\subsection{Datasets and Protocols}
+\label{sec:exp_datasets_protocols}
 
-\section{Quantitative Evaluation Results. }
-\label{sec:eval_Quantitative}
-In Table \ref{tab:Quantitative}, a comparison of each model's PSNR, LPIPS, and real-time performance is presented, specifically when audio input is provided.
-The MakeItTalk model~\cite{zhou2020makelttalk} is unable to replicate the exact head poses found in the ground truth video,
-hence PSNR and LPIPS metrics are not reported for it.
-Inference FPS data is collected in RTX 3090 GPU with Intel Zeon 6230R CPU environment.
-\input{tables/realaudio.tex}
+We evaluate TF-Rehancer using a 16 kHz wideband benchmark and a 48 kHz controlled ablation setting. The 16 kHz setting uses the official VoiceBank+DEMAND (VBD) corpus to compare the proposed model with lightweight speech enhancement baselines. The 48 kHz setting uses VCTK clean speech mixed with DNS full-band noise to analyze the architectural components of TF-Rehancer under full-band processing.
 
-\section{Qualitative Evaluation Results. }
-\label{sec:eval_Qualitative}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/figure_chap_4/qualitative.png}
-    \caption{Qualitative evaluation results}
-    \label{fig:qualitative}
-\end{figure}
-\input{tables/userstudy.tex}
-\ref{fig:qualitative} represents, in order from top to bottom, GT (Ground Truth), AD-NeRF, Rad-NeRF, and the Proposed model.
+For the 16 kHz comparison, we use the official VBD paired speech enhancement corpus. The official training partition contains 28 speakers and is split into 10,413 training utterances and 1,159 validation utterances using a fixed random seed. Evaluation is performed on the official 824-utterance test set, which contains unseen speakers.
 
-The proposed model is designed to be trained with a smaller amount of input data.
-As a result, while it may slightly lag behind other models in terms of textural details, it excels in accurately replicating eye movements and lip expressions.
-This focus on nuanced facial movements, particularly in the eyes and mouth, enables the model to achieve superior performance in these areas, despite the trade-off in texture quality.
+For the 48 kHz ablation study, noisy mixtures are synthesized from VCTK~\cite{veaux2017vctk} clean speech and DNS~\cite{reddy2020dns} full-band noise. Each model is trained for 20 epochs and evaluated on the VBD 48 kHz test set. These experiments are intended for controlled component analysis, not for ranking against external full-band systems.
 
-\subsection{User Study}
-\label{sec:user_study}
-To conduct a thorough assessment of the quality of generated talking faces, a comprehensive user study is organized with the participation of 10 attendees.
-This study involves the evaluation of 10 synthesized videos, created through various methods in a cross-driven context.
-The attendees focus on three key aspects: the synchronization of audio with lip movements, the quality of the image generation, and the overall realism of the videos.
-This evaluation aims to determine the effectiveness and authenticity of different synthetic video generation techniques.
-The results of this user study are shown in Table \ref{tab:userstudy}.
-\input{tables/userstudy.tex}
-The proposed model outperforms in the boader effact perspective while the RAD-NeRF model~\cite{tang2022radnerf} is rated higher in terms of border effects.
+\subsection{Model Configuration}
+\label{sec:exp_model_configuration}
 
-\section{Advantages of TTS-integrated Synthesis}
-In this context, the focus is on examining the advantages of simultaneously generating Text-to-Speech (TTS) along with the visual components,
-compared to a cascading approach where the voice is generated separately and sequentially. 
+This chapter evaluates the final TF-Rehancer architecture described in Chapter~\ref{chap:proposed_method}. The main design principle is low-band encoder-guided refinement of observed high-band features in the full-band decoder. The model concentrates heavy encoding on the low-band representation, keeps observed high-band features in the decoder path, refines the decoder representation using the low-band encoder output, and estimates the enhanced spectrum through complex TF filtering over the original noisy STFT.
 
-\subsection{Synchronization}
-\label{sec:synchronization}
-When an avatar trained on Barack Obama's data was generated using a voice synthesized from the voice of a different author, it was observed that the sync quality with the original audio was compromised.
-This discrepancy can be attributed to differences in voice characteristics such as volume and timbre between the synthesized voice and Obama's original voice. These domain differences highlight the challenges in achieving seamless audio-visual synchronization in avatars when the audio used for synthesis differs significantly from the data the avatar model was trained on.
-However, it was found that utilizing tokens generated during the Text-to-Speech (TTS) process yielded better synchronization rates compared to the method of generating the talking head after the audio synthesis.
-This suggests that integrating TTS-generated tokens directly into the talking head generation process allows for more accurate and synchronized movements of the facial features, particularly the lips, to match the speech. This approach indicates a more efficient and cohesive method for creating lifelike and synchronized talking avatars.
-These performance improvements were confirmed in a user study\ref{tab:userstudy}, where it was found that using more compressed encoded tokens achieved similar performance to that of ASR (Automatic Speech Recognition) tokens.
+All TF-Rehancer experiments use a 40 ms analysis window and a 20 ms frame shift. With this setting, both 16 kHz and 48 kHz configurations have a frequency spacing of 25 Hz. The default low-band cutoff is 5 kHz, corresponding to 201 full-resolution frequency bins and 101 embedded low-band tokens after the frequency-strided stem. Thus, the low-band encoder length is nearly fixed across 16 kHz and 48 kHz configurations, while the number of observed high-band decoder tokens increases in the 48 kHz setting.
 
-\subsection{Efficiency}
-\label{sec:efficiency}
+Model complexity is reported using the number of parameters and model-side multiply-accumulate operations (MACs). Unless otherwise stated, MACs exclude STFT and inverse STFT operations.
 
-When leveraging tokens generated during the Text-to-Speech (TTS) process for facial synthesis, a comparative analysis was conducted to evaluate how much more efficient this method is in terms of synthesis time, especially when compared to the cascading approach of synthesis. This comparison was made across varying lengths of audio, to understand the impact of audio duration on the synthesis efficiency. The aim was to determine if using TTS-generated tokens directly in facial synthesis significantly reduces the time required for the process, and how this efficiency scales with longer or shorter audio inputs.
-This comperison is shown in Table \ref{tab:efficiency}, where the models to inference were aleady loaded onto the GPU.
-While there is a clear difference in efficiency between using TTS-generated tokens for facial synthesis and the cascading approach, it was observed that external factors, such as the time taken to complete the video processing with ffmpeg, significantly impact the overall performance. This means that the improvements gained from the model's efficiency in facial synthesis were somewhat offset by the time required for video completion through ffmpeg. As a result, the expected level of efficiency improvement was not fully realized due to these external processing factors. 
-\begin{table}
-    \centering
-    \begin{tabular}{ccc}
-        \hline
-        Audio Duration & End-to-End & Cascading \\
-        \hline
-        7s & 4.41s & 6.83s \\
-        \hline
-        15s & 12.87s & 16.24s \\
-        \hline
-    \end{tabular}
-    \caption{Comparison of synthesis time for TTS-integrated and cascading approaches}
-    \label{tab:efficiency}
-\end{table}
+\subsection{Evaluation Metrics}
+\label{sec:exp_evaluation_metrics}
+
+For locally trained TF-Rehancer runs, evaluation uses the checkpoint with the lowest validation loss. The default VoiceBank+DEMAND evaluation set contains 824 utterances.
+
+We use both full-reference and non-intrusive metrics. DNSMOS P.808 and DNSMOS P.835 SIG/BAK/OVRL are computed after resampling the waveform to 16 kHz. SCOREQ is computed in full-reference natural-speech mode after 16 kHz resampling. PESQ-WB, STOI, and ESTOI are also computed after 16 kHz resampling. Unless otherwise specified, SI-SDR is computed at the task sampling rate.
+
+For the 48 kHz analysis, we additionally report full-band spectral metrics because many standard speech enhancement metrics are computed after 16 kHz resampling and do not directly evaluate the upper-frequency region. We report full-band LSD, MCD, and SI-SDR for 48 kHz outputs. DNSMOS SIG/BAK/OVRL refers to DNSMOS P.835, while CSIG/CBAK/COVL refers to composite full-reference metrics.
+
+\section{16 kHz Speech Enhancement and Efficiency}
+\label{sec:exp_16k_efficiency}
+
+We first evaluate the 16 kHz configuration on a standard wideband benchmark to compare enhancement quality and computational cost.
+
+Table~\ref{tab:voicebank_demand_external} reports 16 kHz results without a separate source column. BSRNN follows the FastEnhancer paper~\cite{ahn2025fastenhancer}. FastEnhancer-S and -M use the released checkpoints and local evaluation. TF-Rehancer uses the same evaluator on the 824-utterance VBD test set. Therefore, the FastEnhancer and TF-Rehancer rows provide the closest same-evaluator comparison, whereas the BSRNN row serves as benchmark context.
+
+\input{tables/voicebank_demand_external}
+
+Relative to the locally evaluated FastEnhancer-M checkpoint, TF-Rehancer improves PESQ-WB and DNSMOS SIG/BAK/OVRL. It also uses lower model-side MACs and a similar number of parameters. FastEnhancer-M remains better in DNSMOS P.808, SCOREQ, SI-SDR, STOI, and ESTOI. Relative to FastEnhancer-S, TF-Rehancer improves PESQ-WB, DNSMOS SIG/BAK/OVRL, SI-SDR, STOI, and ESTOI, but requires more computation. Therefore, the 16 kHz result supports a competitive quality-efficiency trade-off rather than uniform dominance.
+
+The BSRNN comparison should not be interpreted as a same-evaluator superiority claim. It indicates that TF-Rehancer reaches a competitive region relative to a published lightweight reference, while using more parameters and MACs than the reported BSRNN configuration.
+
+\section{Full-Band Architecture Ablations}
+\label{sec:exp_fullband_ablation}
+
+\input{tables/main_comparison}
+
+The direct mapping head is weaker than complex TF filtering across the reported metric families. This suggests that filtering-based output estimation is more reliable than direct spectrum mapping in the 48 kHz ablation setting. The w/o decoder MHCA variant shows a mixed trend. It improves PESQ, STOI, CSIG, COVL, and DNSMOS SIG, but degrades SI-SDR, LSD, MCD, and DNSMOS BAK/OVRL. Thus, decoder MHCA should be interpreted as changing the trade-off between perceptual scores and spectral fidelity, rather than as a uniformly beneficial module.
+
+\section{Low-Band Cutoff Sensitivity}
+\label{sec:exp_cutoff_sensitivity}
+
+\input{tables/cutoff_ablation_48k}
+
+The cutoff sweep shows a trade-off among computation, perceptual quality, and spectral fidelity. Larger cutoffs increase computation and improve some perceptual scores, whereas smaller cutoffs reduce MACs but can degrade full-band and high-band spectral fidelity. Under the 48 kHz ablation setting, we use 5 kHz as the default cutoff because it provides a balanced operating point between computational cost, SI-SDR, and high-band spectral metrics.

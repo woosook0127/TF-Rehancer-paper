@@ -1,35 +1,28 @@
 \chapter{Introduction}
 \label{chap:introduction}
 
-\section{Motivation}
-\label{sec:motivation}
-The field of talking head generation has been gaining substantial momentum in recent times.
-This burgeoning area of research is becoming increasingly crucial in various sectors, particularly in cultural and content-driven industries such as gaming.
-Moreover, its applications extend beyond entertainment, offering significant potential in interactive systems like kiosks, enhancing user experience with more engaging and personalized interactions.
+Many established speech enhancement benchmarks and baselines are built around conventional 16 kHz wideband settings. In this setting, the upper-band spectral components contained in 48 kHz full-band speech are outside the model input. Direct 48 kHz full-band speech enhancement therefore presents a different operating condition: the model receives a noisy full-band signal, and the upper-band spectrum is available as noisy evidence to be enhanced. Although full-band enhancement has been explored in prior work, same-protocol references for direct 48 kHz full-band SE remain less established than conventional wideband evaluation.
 
-However, it's noteworthy that research in the field of talking head generation has predominantly been audio-based. \cite{wav2lip, makeitalk}
-This focus has shaped the development and evolution of the technology, with a significant emphasis on how auditory inputs can drive and enhance the realism and effectiveness of generated visual content.
-Even in text-based methods like Text2Video\cite{Text2Video}, there is an essential step to ensure that the generated video is synchronized with the audio.
+Speech bandwidth extension and speech super-resolution target a different information condition. These tasks aim to reconstruct missing or degraded high-frequency content from band-limited inputs~\cite{liu2022voicefixer,andreev2022hifiplusplus}, whereas 48 kHz full-band SE starts from a noisy full-band observation. Therefore, the key issue is not to synthesize the upper band after wideband enhancement, but to suppress noise over the full observed spectrum while preserving useful spectral evidence. This distinction motivates a direct full-band enhancement approach in which the high-frequency region is treated as part of the noisy observation rather than as a missing component to be generated afterward.
 
-In the Text-to-Speech (TTS) process, audio features are generated and then decoded to produce the final audio output.\cite{Fastspeech2, Vall-E-X}
-However, extracting these features again from the completed audio represents a computational redundancy.
-This is because the same features, already generated during the TTS process, are being reprocessed, leading to unnecessary computational effort and inefficiency.
+Practical full-band systems such as PercepNet and DeepFilterNet2 have shown that full-band enhancement can be made feasible under strict computational constraints~\cite{valin2020percepnet,schroter2022deepfilternet2}. PercepNet uses perceptually motivated critical-band features and comb filtering, while DeepFilterNet2 combines ERB-domain enhancement with deep filtering. Such perceptual-band front ends trade bin-level spectral resolution for efficiency, which motivates a complementary TF-domain design that uses a learned frequency representation and estimates the enhanced spectrum through complex filtering over the original noisy STFT.
 
-Therefore, in this study, the aim is to utilize the features generated during the Text-to-Speech (TTS) process for Talking Head generation as well.
-By doing so, the research seeks to enhance efficiency by repurposing the already computed audio features, thereby avoiding the redundant step of re-extracting these features from the final audio output.
-This approach not only streamlines the process but also potentially improves the synchronization between the audio and the visual elements in Talking Head generation.
+In this work, we propose TF-Rehancer V5, a refinement-oriented time-frequency architecture for full-band speech enhancement. The core idea is to encode low-band speech-structure evidence and use the observed high-band spectrum as decoder-side query information. Through cross-band interaction, TF-Rehancer V5 refines the high-band query and the subsequent full-band representation. The enhanced spectrum is then estimated by complex filtering over the original noisy STFT, rather than by directly generating a clean spectrum from a latent representation. This design allows the model to exploit cross-band speech structure while keeping the final estimation tied to the observed noisy signal.
 
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figures/Architecture.png}
+    \caption[Conceptual overview of TF-Rehancer]{Conceptual overview of TF-Rehancer V5. The model analyzes low-band speech evidence and refines an observed high-band query before local complex filtering and waveform reconstruction.}
+    \label{fig:intro_tf_rehancer_overview}
+\end{figure}
 
-\section{Overview of the proposed method}
-\label{sec:overview} 
-Contributions of this paper are as follows:
+We evaluate TF-Rehancer V5 with a 16 kHz VoiceBank+DEMAND comparison and 48 kHz controlled full-band ablations. The 16 kHz experiment examines the quality-efficiency trade-off against lightweight speech enhancement references. The 48 kHz experiments analyze the architectural components of TF-Rehancer under full-band processing and are not used as external full-band system rankings.
+
+The contributions of this work are summarized as follows.
 \begin{enumerate}
-    \item We propose a novel approach to text-driven talking head generation that combines the strengths of text-based audio generation models with audio-driven video generation models.
-    \item We build a Neural Radiance Fields (NeRF) based talking head generation architecture integrated with text-to-speech(TTS). This approch has a number of advantages.
-    \begin{itemize}
-        \item it only needs 5 min of trainning data.
-        \item It is not constrained by Automatic Speech Recognition (ASR) models, thereby offering freedom from language barriers.
-        \item It can support real-time inference in low computational cost.
-    \end{itemize}
-    \item We conduct extensive experiments to demonstrate the effectiveness of our proposed method.
+    \item We formulate 48 kHz full-band SE as observation-preserving refinement, where upper-band components are treated as noisy spectral evidence rather than missing content to be generated after wideband processing.
+    \item We propose TF-Rehancer V5, a TF-domain architecture that combines low-band speech-structure evidence, decoder-side observed high-band query features, cross-band interaction, and complex filtering over the original noisy STFT.
+    \item We provide a 16 kHz quality-efficiency comparison and controlled 48 kHz ablations that analyze complex filtering, decoder cross-attention, and the low-band cutoff without using them as external full-band system rankings.
 \end{enumerate}
+
+The remainder of this thesis is organized as follows. Chapter~\ref{chap:related_work} reviews related work in wideband enhancement, bandwidth extension, and practical full-band enhancement. Chapter~\ref{chap:proposed_method} describes the TF-Rehancer V5 architecture and training objective. Chapter~\ref{chap:experiments} presents the experimental setup, benchmark results, and ablation analysis. Chapter~\ref{chap:conclusion} summarizes the thesis and discusses limitations and future work.

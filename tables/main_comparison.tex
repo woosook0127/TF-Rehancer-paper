@@ -1,0 +1,20 @@
+\begin{table}[ht!]
+    \centering
+    \small
+    \setlength{\tabcolsep}{1.2pt}
+    \renewcommand{\arraystretch}{1.15}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{lcccccccccccc}
+        \hline
+        \multirow{2}{*}{Method} & \multirow{2}{*}{PESQ$\uparrow$} & \multirow{2}{*}{STOI$\uparrow$} & \multirow{2}{*}{CSIG$\uparrow$} & \multirow{2}{*}{CBAK$\uparrow$} & \multirow{2}{*}{COVL$\uparrow$} & \multirow{2}{*}{SI-SDR$\uparrow$} & \multirow{2}{*}{LSD$\downarrow$} & \multirow{2}{*}{MCD$\downarrow$} & \multicolumn{3}{c}{DNSMOS(P.835)$\uparrow$} & \multirow{1}{*}{DNSMOS} \\
+        & & & & & & & & & SIG & BAK & OVL & (P.808)$\uparrow$\\
+        \hline
+        \rowcolor{TFTableGray} TF-Rehancer &  {\bfseries 3.29} & 0.947 & 4.41 & {\bfseries 3.60} & 3.88 & {\bfseries 16.84} & {\bfseries 0.72} & {\bfseries 2.27} & 3.38 & {\bfseries 3.98} & {\bfseries 3.07} & {\bfseries 3.46} \\
+        w/o Decoder MHCA & {\bfseries 3.29} & {\bfseries 0.948} & {\bfseries 4.44} & 3.59 & {\bfseries 3.90} & 16.38 & 0.74 & 2.28 & {\bfseries 3.39} & 3.96 &  {\bfseries 3.07} & {\bfseries 3.46} \\
+        w/ Direct Mapping & 3.05 & 0.940 & 4.24 & 3.40 & 3.66 & 14.90 & 0.78 & 2.52 & 3.35 & 3.96 & 3.03 & 3.44 \\
+        \hline
+    \end{tabular}
+    }
+    \caption[48 kHz architecture ablation]{48 kHz architecture ablation on the VoiceBank+DEMAND 48 kHz test set. All models are trained for 20 epochs using VCTK clean speech and DNS full-band noise and evaluated on the VoiceBank+DEMAND 48 kHz test set. These results are intended for controlled component analysis, not for ranking against external full-band systems.}
+    \label{tab:main_comparison}
+\end{table}

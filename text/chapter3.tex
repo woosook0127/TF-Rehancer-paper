@@ -1,78 +1,267 @@
 \chapter{Proposed Method}
-\label{chap:Method}
-In this chapter, each part of the proposed method is described in detail.
+\label{chap:proposed_method}
 
-\section{Overview}
-The proposed method consists of three modules: input features, text-to-speech module, and talking head generation module.
-The input features are the input of the text-to-speech module. The text-to-speech module is the input of the talking head generation module.
-The talking head generation module is the output of the proposed method.
-The overview of the proposed method is shown in Figure \ref{fig:overview}. Encodec refers to the encoder of Encodec, while Decodec refers to the decoder of Encodec.
-The main contribution of this paper is the yellow-highlighted audio token processor part and the face landmark loss, which maintains a constant face size. This will be explained further below.
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/figure_chap_3/overview.png}
-    \caption{Overview of the proposed method}
-    \label{fig:overview}
-\end{figure}
-\section{input features}
-\subsection{audio and text features}
-\label{sec:audio_and_text_features}
-The input features are the input of the text-to-speech module.
-Input audio resampled to 24kHz and encoded by the encodec\cite{EnCodec}.
-EnCodec is trained on the DNS Challenge 4, common voice and audioset.
-The tokens extracted from the EnCodec are processed discribed at \ref{fig:feature}.
-As illustrated in the figure, the same order of token values from consecutive 3 tokens were concatenated,
-since the output of the same residual vector quantizer in consecutive tokens tends to have similar values.
-The reason for concatenating tokens in groups of three is three tokens being generated for every 25ms.
-This is the same as the frame rate of the video feature sequence chunk size.
-And the tokens are grouped into window size of 16 for smoothing.
+\section{Problem Formulation}
+\label{sec:method_problem}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/figure_chap_3/feature.png}
-    \caption{EnCodec feature processing}
-    \label{fig:feature}
-\end{figure}
- 
-
-\subsection{video features}
-Video features are the input of the talking head generation module, when the talking head generation module is trained.
-Additionally, face landmark extracted four the speaker's eye-movement and lip movement naturalness.
-
-
-
-\section{Text-to-Speech Module}
-Text-to-speech module generates the audio feature of the speaker's voices.
-In this study, TTS model is Vall-E-X, trained with Librispeech and LibriTTS.
-Encodec compression option is same as audio encoder in \ref{sec:audio_and_text_features}.
-
-\section{NeRF-based Talking Head Generation Module}
-Talking head generation module generates the talking head video of the speaker.
-In this study, Rad-NeRF\cite{tang2022radnerf} picked for the talking head generation module baseline.
-The audio feature extraction module is modifeid to better fit the proposed method.
-Batch-normalization is added to the front of the audio feature extraction module.
-Since the EnCodec feature has a value range between 0 and 1024,
-This range could be a result of the encoding process or a design choice to standardize the feature values,
-making them suitable for subsequent processing steps that might require normalized or bounded input values.
-after the batch-normalization, the audio processing module is similar as the original Rad-NeRF.
-\begin{figure}
-    \centering
-    \includegraphics[width=0.4\textwidth]{figures/figure_chap_3/afp.png}
-    \caption{audio feature extraction module}
-    \label{fig:afp}
-\end{figure}
-
-\section{Loss Function}
-In addressing the challenge of inconsistent head proportions in dynamic facial imagery within Neural Radiance Fields (NeRF) based models, a novel approach is proposed. Traditional NeRF implementations, which primarily utilize Mean Squared Error (MSE) loss against original images, often result in fluctuating head sizes in generated sequences. This issue is particularly pronounced in sequences involving speech or facial movements.
-To mitigate this, an enhanced loss function is introduced, integrating a face landmark loss with the standard MSE loss. This additional component aims to stabilize and normalize head dimensions in synthesized images, addressing the inconsistencies arising from the use of MSE loss alone.
-The proposed loss function is defined as follows:
+Let \(y \in \mathbb{R}^{L}\) and \(x \in \mathbb{R}^{L}\) denote the noisy and clean speech waveforms, respectively. In single-channel speech enhancement, the noisy signal is modeled as
 \begin{equation}
-    \mathcal{L} = \mathcal{L}_{MSE} + \lambda \mathcal{L}_{landmark}
+    y = x + n,
 \end{equation}
-where $\mathcal{L}_{MSE}$ is the MSE loss, $\mathcal{L}_{landmark}$ is the face landmark loss, and $\lambda$ is the weight of the face landmark loss.
-The face landmark loss is defined as follows:
+where \(n\) denotes additive noise. Applying the short-time Fourier transform (STFT) to \(y\) and \(x\) gives the noisy and clean complex spectra
 \begin{equation}
-    \mathcal{L}_{landmark} = \frac{1}{N}\sum_{i=1}^{N}||\mathbf{p}_i - \mathbf{p}_i^*||_2
+    Y, X \in \mathbb{C}^{F \times T},
 \end{equation}
-where $\mathbf{p}_i$ is the predicted face landmark, $\mathbf{p}_i^*$ is the ground truth face landmark, and $N$ is the number of face landmarks.
-The face landmark loss is calculated using the normalized MSE loss between the predicted face landmarks and the ground truth face landmarks.
+where \(F\) and \(T\) denote the number of frequency bins and time frames. The target of full-band speech enhancement is to estimate a clean full-band spectrum \(\hat{X}\) from the noisy full-band observation \(Y\), followed by inverse STFT reconstruction of the enhanced waveform \(\hat{x}\).
+
+TF-Rehancer V5 follows an observation-preserving filtering formulation. The neural network predicts a complex local time-frequency filter \(W\), and the final spectrum is obtained by applying this filter to a normalized linear noisy STFT reference \(Y^{\mathrm{ref}}\):
+\begin{equation}
+    W = \mathcal{G}_{\theta}(\Phi(Y)), \qquad
+    \hat{X} = W \otimes Y^{\mathrm{ref}}.
+\end{equation}
+Here, \(\mathcal{G}_{\theta}\) denotes TF-Rehancer V5, \(\Phi(Y)\) is the neural conditioning feature, and \(\otimes\) denotes local complex filtering over a time-frequency neighborhood. The compressed feature \(\Phi(Y)\) is used for conditioning, while the output operator is applied to the original linear noisy spectrum. Therefore, the model is not trained as an unconstrained direct generator of \(\hat{X}\); it estimates the filter coefficients used to transform the observed noisy spectrum.
+
+For a 48 kHz full-band input, the upper band is already present in \(Y\), although it is corrupted by noise. TF-Rehancer V5 therefore treats the high-frequency region as observed noisy evidence rather than as missing information. The model encodes low-band speech structure, derives decoder-side high-band query features from the observed high band, and refines the full-band representation before complex filtering.
+
+\section{SFI-STFT Conditioning and Input/Output Layers}
+\label{sec:method_architecture}
+
+TF-Rehancer V5 adopts the sampling-frequency-independent STFT (SFI-STFT) principle used in TF-Restormer~\cite{shin2026tfre}. Let \(f_s\) denote the sampling rate, and let the analysis window and hop durations be \(\tau_w=0.04\) s and \(\tau_h=0.02\) s. The STFT parameters are set by physical duration:
+\begin{equation}
+    N(f_s)=\tau_w f_s,
+    \qquad
+    H(f_s)=\tau_h f_s,
+    \qquad
+    F(f_s)=\frac{N(f_s)}{2}+1 .
+\end{equation}
+Thus, the 16 kHz configuration uses \(N=640\), \(H=320\), and \(F=321\), while the 48 kHz configuration uses \(N=1920\), \(H=960\), and \(F=961\). This keeps the temporal frame geometry fixed across sampling rates and lets the frequency-bin count scale with bandwidth. Unlike TF-Restormer, which uses decoupled input-output rates for restoration and super-resolution, TF-Rehancer uses the same SFI-STFT parameterization for the noisy input, clean target, and inverse-STFT reconstruction in matched-rate 16 kHz and 48 kHz speech enhancement.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/Overall_Model_Flow.png}
+    \caption[Overall TF-Rehancer V5 architecture]{Overall TF-Rehancer V5 architecture. The shared input layer produces an embedded full-band representation, the low-band region is analyzed by the TF encoder, the observed high-band region is carried as decoder-side query evidence, and the TF decoder refines the full-band representation before the output layer estimates complex TF filters.}
+    \label{fig:method_overall_flow}
+\end{figure}
+
+Figure~\ref{fig:method_overall_flow} summarizes the canonical TF-Rehancer V5 architecture used in this thesis. The frontend constructs a power-law compressed conditioning feature while preserving a linear noisy STFT reference for the final filtering step. The shared input layer embeds the full-band STFT and reduces only the frequency resolution. A fixed 5 kHz split then routes low-band tokens to the TF encoder and high-band tokens to the decoder-side observed-query path. The encoder uses four low-band time-frequency blocks to model speech-structure evidence. The decoder uses two cross-band time-frequency blocks to refine the high-band query and the joint full-band representation. Finally, FastFilterUpsample restores the original STFT frequency resolution, and the output layer estimates a local \(3\times3\) complex filter applied to \(Y^{\mathrm{ref}}\).
+
+The neural conditioning feature is constructed from a power-law compressed complex STFT. Given \(\gamma=0.3\), the compressed spectrum is
+\begin{equation}
+    C_{\gamma}(Y)
+    =
+    Y\left(|Y|^2+\epsilon\right)^{(\gamma-1)/2}.
+\end{equation}
+The input feature concatenates compressed real, compressed imaginary, and compressed magnitude channels:
+\begin{equation}
+    \Phi(Y)=
+    \left[
+    \operatorname{Re}(C_{\gamma}(Y)),
+    \operatorname{Im}(C_{\gamma}(Y)),
+    |C_{\gamma}(Y)|
+    \right].
+\end{equation}
+Power-law compression stabilizes the dynamic range of spectral amplitudes for neural processing. The uncompressed noisy STFT reference \(Y^{\mathrm{ref}}\) is kept separately for the final filtering operation.
+
+The feature \(\Phi(Y)\) is passed through a shared frequency-strided input stem:
+\begin{equation}
+    H = \operatorname{Stem}(\Phi(Y)).
+\end{equation}
+The stem consists of \(\operatorname{Conv2D}(3 \rightarrow 48)\), batch normalization, and a SiLU activation. The convolution uses kernel size \((4,1)\), stride \((2,1)\), and padding \((2,0)\), so it reduces only the frequency resolution and preserves the frame rate. This shared stem is used for both 16 kHz and 48 kHz configurations. After the stem, the embedded frequency resolution is \(F_{\mathrm{emb}}=161\) at 16 kHz and \(F_{\mathrm{emb}}=481\) at 48 kHz.
+
+On the output side, the decoder representation is restored to the original STFT frequency resolution before estimating local complex filter coefficients. Thus, both input-side embedding and output-side filtering are described as local convolutional transformations around an explicit STFT reference, rather than as unconstrained waveform generation.
+
+\section{Observed High-Band Query and Low-Band Analysis}
+\label{sec:method_query_refinement}
+
+After the shared stem, TF-Rehancer V5 splits the embedded frequency axis using a 5 kHz cutoff:
+\begin{equation}
+    (H_{\mathrm{low}}, H_{\mathrm{high}})
+    =
+    \operatorname{Split}_{5\mathrm{kHz}}(H).
+\end{equation}
+At 16 kHz, this gives \(F_{\mathrm{low}}=101\) and \(F_{\mathrm{high}}=60\). At 48 kHz, it gives \(F_{\mathrm{low}}=101\) and \(F_{\mathrm{high}}=380\). Thus, the same low-band speech-structure region is encoded at both sampling rates, while the 48 kHz model keeps a much larger observed high-band region in the decoder path.
+
+The high-band branch is not a learned empty query. It is derived from the observed high-band stem feature:
+\begin{equation}
+    Q_h = H_{\mathrm{high}} + \operatorname{Adapter}_{h}(H_{\mathrm{high}}).
+\end{equation}
+The adapter is a residual local convolutional block with SiLU activation and layer normalization, using the local layer family summarized in Fig.~\ref{fig:method_io_hbr_layer}. This block aligns the observed high-band representation with the decoder query space before cross-band refinement. It does not perform decoder refinement by itself; it prepares the high-band tokens for the decoder.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.65\textwidth]{figures/In_out_hbr_layer.png}
+    \caption[Local convolutional layer notation]{Local convolutional layer notation used for compactly describing the input-side, output-side, and high-band-refinement layer family. The exact channel width, stride, and normalization for each use are specified in the text.}
+    \label{fig:method_io_hbr_layer}
+\end{figure}
+
+The low-band encoder analyzes \(H_{\mathrm{low}}\) with four stacked blocks:
+\begin{equation}
+    Z = \operatorname{Encoder}(H_{\mathrm{low}}).
+\end{equation}
+Each encoder block contains an efficient frequency feed-forward module, frequency-axis multi-head self-attention with rotary positional encoding, another frequency feed-forward module, and a FastGRU2 temporal module. The encoder does not use a frequency projection layer or a pre-encoder sinusoidal positional encoding. Its role is to model speech structure from the low-band region, where harmonic and formant-related evidence is relatively dense.
+
+\section{Cross-Band Decoder Refinement}
+\label{sec:method_decoder_refinement}
+
+The decoder first concatenates the low-band encoder output and the adapted high-band query along the embedded frequency axis:
+\begin{equation}
+    D_0
+    =
+    \operatorname{LN}
+    \left(
+    \operatorname{Linear}
+    \left(
+    [Z;Q_h]_F
+    \right)
+    \right).
+\end{equation}
+The projection maps the concatenated 48-channel representation to the 24-channel decoder width. This projection is a separate alignment stage between the encoder/query interface and the decoder blocks.
+
+TF-Rehancer V5 uses two decoder blocks. In each block, multi-head cross-attention updates only the high-band tokens by using the encoded low-band representation as key and value:
+\begin{equation}
+    \tilde{D}_{\mathrm{high}}
+    =
+    D_{\mathrm{high}}
+    +
+    \operatorname{MHCA}(D_{\mathrm{high}}, Z, Z).
+\end{equation}
+The updated high-band tokens are concatenated back with the low-band decoder tokens:
+\begin{equation}
+    \tilde{D} = [D_{\mathrm{low}};\tilde{D}_{\mathrm{high}}]_F.
+\end{equation}
+Subsequent frequency-axis self-attention, frequency feed-forward processing, and FastGRU2 temporal modeling operate on the full embedded sequence. Cross-attention therefore provides directed low-to-high guidance, while the following full-sequence modules refine the joint full-band representation.
+
+This design separates three roles. The high-band adapter constructs an observed high-band query from \(H_{\mathrm{high}}\). The concat-projection layer aligns the low-band encoder output and high-band query into the decoder width. The decoder blocks then perform cross-band refinement and full-sequence time-frequency modeling.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.96\textwidth]{figures/core_blocks.png}
+    \caption[TF-Rehancer encoder and decoder core blocks]{TF-Rehancer encoder and decoder core blocks. The temporal module uses residual PConv1D--T-GRU stages, the encoder frequency module combines F-ConvFFN and F-MHSA with RoPE, and the decoder frequency module adds F-MHCA with RoPE before full-sequence self-attention and convolutional feed-forward processing.}
+    \label{fig:method_core_blocks}
+\end{figure}
+
+\section{Full-Resolution Complex TF Filtering}
+\label{sec:method_filtering}
+
+The decoder output is still at embedded frequency resolution. Before filter estimation, TF-Rehancer V5 restores it to the original STFT frequency resolution using FastFilterUpsample:
+\begin{equation}
+    D_{\mathrm{full}}
+    =
+    \operatorname{FastFilterUpsample}(D_{\mathrm{emb}})
+    \in
+    \mathbb{R}^{B \times F \times T \times C_d}.
+\end{equation}
+This module uses a pointwise convolution followed by transposed convolution along the frequency axis. The restored full-resolution feature is then passed to a partial-convolution filter head and a local \(3 \times 3\) time-frequency convolution.
+The output-side convolutional operations follow the compact local-layer notation in Fig.~\ref{fig:method_io_hbr_layer}, while the explicit filtering operation is described below.
+
+For each time-frequency bin, the head predicts nine complex taps corresponding to
+\begin{equation}
+    \Delta f \in \{-1,0,1\},
+    \qquad
+    \Delta t \in \{-1,0,1\}.
+\end{equation}
+The raw head output has 27 channels: one magnitude scale, one real component, and one imaginary component for each of the nine taps. A softplus activation constrains the magnitude scale to be positive, and tanh activations bound the real and imaginary components:
+\begin{equation}
+    M = \operatorname{softplus}(A_m),
+    \qquad
+    R,I = \tanh(A_{ri}),
+\end{equation}
+\begin{equation}
+    W_{\Delta f,\Delta t,f,t}
+    =
+    M_{\Delta f,\Delta t,f,t}
+    \left(
+    R_{\Delta f,\Delta t,f,t}
+    +
+    jI_{\Delta f,\Delta t,f,t}
+    \right).
+\end{equation}
+The enhanced spectrum is computed as
+\begin{equation}
+    \hat{X}_{f,t}
+    =
+    \sum_{\Delta f=-1}^{1}
+    \sum_{\Delta t=-1}^{1}
+    W_{\Delta f,\Delta t,f,t}
+    Y^{\mathrm{ref}}_{f+\Delta f,t+\Delta t}.
+\end{equation}
+Boundary positions are padded before local neighborhoods are gathered. This operation is a complex filtering operation, not a correlation estimate. The coefficients \(W\) are the predicted filter weights used to construct \(\hat{X}\); they are conditioned on the decoder feature and applied to the observed noisy STFT reference.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.82\textwidth]{figures/3x3DeepFiltering_Demonstration.png}
+    \caption[Local \(3\times3\) complex TF filtering]{Local \(3\times3\) complex TF filtering. For each output bin, TF-Rehancer V5 predicts complex coefficients over a local time-frequency neighborhood and applies them to the corresponding noisy STFT samples.}
+    \label{fig:method_deep_filtering}
+\end{figure}
+
+\section{Training Objective}
+\label{sec:method_training}
+
+TF-Rehancer V5 is trained with a corrected FastEnhancer-style composite enhancement loss. The spectral terms are computed on gamma-compressed complex spectra. For a complex spectrum \(X\), the compressed spectrum is
+\begin{equation}
+    X_c = |X|^{\gamma}\exp(j\angle X),
+    \qquad \gamma=0.3,
+\end{equation}
+with an \(\epsilon\)-stabilized magnitude in implementation. The total loss is
+\begin{equation}
+    \mathcal{L}
+    =
+    \lambda_{\mathrm{mag}}\mathcal{L}_{\mathrm{mag}}
+    +
+    \lambda_{\mathrm{cplx}}\mathcal{L}_{\mathrm{cplx}}
+    +
+    \lambda_{\mathrm{cons}}\mathcal{L}_{\mathrm{cons}}
+    +
+    \lambda_{\mathrm{wav}}\mathcal{L}_{\mathrm{wav}}
+    +
+    \lambda_{\mathrm{pesq}}\mathcal{L}_{\mathrm{pesq}}.
+\end{equation}
+The compressed magnitude loss is
+\begin{equation}
+    \mathcal{L}_{\mathrm{mag}}
+    =
+    \left\|
+    |\hat{X}_c| - |X_c|
+    \right\|_2^2.
+\end{equation}
+The compressed complex loss is
+\begin{equation}
+    \mathcal{L}_{\mathrm{cplx}}
+    =
+    \left\|
+    \operatorname{Re}(\hat{X}_c)-\operatorname{Re}(X_c)
+    \right\|_2^2
+    +
+    \left\|
+    \operatorname{Im}(\hat{X}_c)-\operatorname{Im}(X_c)
+    \right\|_2^2.
+\end{equation}
+The consistency loss compares the compressed STFT of the reconstructed waveform with the clean compressed spectrum:
+\begin{equation}
+    \mathcal{L}_{\mathrm{cons}}
+    =
+    \left\|
+    \operatorname{STFT}(\hat{x})_c - X_c
+    \right\|_2^2.
+\end{equation}
+The waveform-domain term is
+\begin{equation}
+    \mathcal{L}_{\mathrm{wav}}
+    =
+    \|\hat{x}-x\|_1.
+\end{equation}
+A weak PESQ auxiliary term is also used:
+\begin{equation}
+    \mathcal{L}_{\mathrm{pesq}}
+    =
+    \operatorname{PESQ\text{-}Loss}(\hat{x},x).
+\end{equation}
+For 48 kHz training, this auxiliary term is evaluated after resampling the waveforms to 16 kHz. The loss weights are
+\begin{equation}
+    \lambda_{\mathrm{mag}}=0.3,\quad
+    \lambda_{\mathrm{cplx}}=0.2,\quad
+    \lambda_{\mathrm{cons}}=0.3,\quad
+    \lambda_{\mathrm{wav}}=0.2,\quad
+    \lambda_{\mathrm{pesq}}=0.001.
+\end{equation}
+The objective combines spectral reconstruction, waveform fidelity, STFT consistency after waveform reconstruction, and a small perceptual proxy term. The primary supervision remains the compressed spectral and waveform-domain enhancement losses.

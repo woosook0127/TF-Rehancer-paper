@@ -13,7 +13,7 @@
 % 기본옵션은 [doctor,twosides,draft] 입니다.
 % \documentclass[doctor,final,twoside,krabst,krack]{SGUThesis}
 % \documentclass[doctor,final,krabst,oneside]{SGUThesis}
-\documentclass[master, final,oneside]{setup/SGUThesis}
+\documentclass[master,final,oneside]{setup/SGUThesis}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   아래 정보를 꼭 바꾸세요!                   %
@@ -36,27 +36,30 @@
 % 강인 음성인식을 위한 비정상성 음성 분포의 최대 우도 추정 기반 전처리
 % }
 \title{3}{
-    NeRF-THIS: Neural Radiance Field based Talking Head Synthesis Incorporating Text-to-Speech
+    Full-Band Speech Enhancement via\\
+    Low-Band Analysis and Observed\\
+    High-Band Query Refinement
 }{
-    
+    저대역 분석과 관측된 고대역 Query 정제를 이용한\\
+    Full-Band 음성 향상\\[4mm]
 }
 
 % 본인의 이름 성,이름 순으로 한글자씩. 한글 이름은 한칸에 모두 적음.
-\author[korean]{고 재 현}{}{}
-\author[chinese]{高}{在}{賢}
-\author[english]{Ko}{Jae}{Hyun}
+\author[korean]{김우석}{}{} % TODO: replace with official Korean name
+\author[chinese]{金}{優}{錫} % TODO: replace with Chinese-character name if required
+\author[english]{Kim}{Woo}{Seok} % TODO: replace with official English name
 
 % 지도교수님 성함 {한자이름}{영문이름}
-\advisor{박 형 민}{박 형 민}{Hyung-Min Park}
+\advisor{박형민}{박형민}{Hyung-Min Park} % TODO: replace with official advisor information
 
 % 전공
-\department{AI}
+\department{AI}{}
 
 % 졸업년월
-\graduateDate{2023}{12}
+\graduateDate{2026}{12} % TODO: replace with expected graduation year/month
 
 % 제출 연,월,일
-\submitDate{2023}{12}{18}
+\submitDate{2026}{12}{15} % TODO: replace with official submission date
 
 % 본문 줄간격 (규정: 160 - 200)
 \captionLineSpacing{160}
@@ -101,7 +104,6 @@
 \addContents{text/chapter3}
 \addContents{text/chapter4}
 \addContents{text/conclusion}
-\addAppendix{text/appendix}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                  여기까지 추가                   %

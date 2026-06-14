@@ -1,9 +1,13 @@
+TEXBIN ?= $(HOME)/.TinyTeX/bin/x86_64-linux
+PDFLATEX ?= $(if $(wildcard $(TEXBIN)/pdflatex),$(TEXBIN)/pdflatex,pdflatex)
+BIBTEX ?= $(if $(wildcard $(TEXBIN)/bibtex),$(TEXBIN)/bibtex,bibtex)
+
 thesis:
-	@/usr/bin/pdflatex $@
-	@/usr/bin/bibtex $@
-	@/usr/bin/pdflatex $@
-	@/usr/bin/pdflatex $@
-	@/usr/bin/pdflatex $@
+	@$(PDFLATEX) $@
+	@$(BIBTEX) $@
+	@$(PDFLATEX) $@
+	@$(PDFLATEX) $@
+	@$(PDFLATEX) $@
 
 clean:
 	rm -rf *.pdf
