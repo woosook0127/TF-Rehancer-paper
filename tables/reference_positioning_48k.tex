@@ -1,0 +1,21 @@
+\begin{table}[ht!]
+    \centering
+    \providecommand{\best}[1]{\textbf{#1}}
+    \small
+    \setlength{\tabcolsep}{1.8pt}
+    \renewcommand{\arraystretch}{1.15}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{lcccccccc}
+        \hline
+        Method & Params$\downarrow$ & MACs & PESQ$\uparrow$ & STOI$\uparrow$ & CSIG$\uparrow$ & CBAK$\uparrow$ & COVL$\uparrow$ & SI-SDR$\uparrow$ \\
+        \hline
+        PercepNet~\cite{valin2020percepnet,schroter2022deepfilternet2} & 8.00M & 0.80G & 2.73 & -- & -- & -- & -- & -- \\
+        DFN2 + Simplified DNN~\cite{schroter2022deepfilternet2} & 2.31M & \best{0.36G} & 3.08 & 0.943 & \best{4.30} & 3.40 & 3.70 & 15.709 \\
+        DFN2 + Post-Filter~\cite{schroter2022deepfilternet2} & 2.31M & \best{0.36G} & 3.03 & 0.941 & 3.72 & 3.37 & 3.63 & 15.769 \\
+        \rowcolor{TFTableGray} TF-Rehancer (on) & \best{0.615M} & 3.15G & \best{3.233} & \best{0.951} & 4.286 & \best{3.567} & \best{3.771} & \best{17.789} \\
+        \hline
+    \end{tabular}
+    }
+    \caption[48 kHz full-band results on VoiceBank+DEMAND 48 kHz]{48 kHz full-band results on the VoiceBank+DEMAND 48 kHz test set. PercepNet and DeepFilterNet2 rows provide published-reference context, with DeepFilterNet2 SI-SDR values taken from the official-checkpoint evaluation summary; TF-Rehancer (on) is locally evaluated. MACs are model-side estimates and exclude STFT/iSTFT.}
+    \label{tab:reference_positioning_48k}
+\end{table}

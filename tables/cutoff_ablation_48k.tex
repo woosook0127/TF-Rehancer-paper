@@ -1,23 +1,24 @@
 \begin{table}[ht!]
     \centering
+    \providecommand{\best}[1]{\textbf{#1}}
     \small
-    \setlength{\tabcolsep}{1.2pt}
+    \setlength{\tabcolsep}{0.9pt}
     \renewcommand{\arraystretch}{1.15}
     \resizebox{\textwidth}{!}{
-    \begin{tabular}{lccccccccccccc}
+    \begin{tabular}{lcccccccccccccc}
         \hline
-        \multirow{2}{*}{Cutoff} & \multirow{2}{*}{MACs$\downarrow$} & \multirow{2}{*}{PESQ$\uparrow$} & \multirow{2}{*}{STOI$\uparrow$} & \multirow{2}{*}{CSIG$\uparrow$} & \multirow{2}{*}{CBAK$\uparrow$} & \multirow{2}{*}{COVL$\uparrow$} & \multirow{2}{*}{SI-SDR$\uparrow$} & \multirow{2}{*}{LSD$\downarrow$} & \multirow{2}{*}{MCD$\downarrow$} & \multicolumn{3}{c}{DNSMOS(P.835)} & \multirow{1}{*}{DNSMOS} \\
-        & & & & & & & & & & SIG$\uparrow$ & BAK$\uparrow$ & OVL$\uparrow$ & (P.808)$\uparrow$\\
+        \multirow{2}{*}{Cutoff} & \multirow{2}{*}{MACs} & \multirow{1}{*}{DNSMOS} & \multicolumn{3}{c}{DNSMOS(P.835)} & \multirow{2}{*}{SI-SDR$\uparrow$} & \multirow{2}{*}{PESQ$\uparrow$} & \multirow{2}{*}{STOI$\uparrow$} & \multirow{2}{*}{ESTOI$\uparrow$} & \multirow{2}{*}{CSIG$\uparrow$} & \multirow{2}{*}{CBAK$\uparrow$} & \multirow{2}{*}{COVL$\uparrow$} & \multirow{2}{*}{LSD$\downarrow$} & \multirow{2}{*}{MCD$\downarrow$} \\
+        & & (P.808)$\uparrow$ & SIG$\uparrow$ & BAK$\uparrow$ & OVL$\uparrow$ & & & & & & & & & \\
         \hline
-        8 kHz & 3.81G & {\bfseries 3.31} & 0.946 & {\bfseries 4.42} & {\bfseries 3.60} & {\bfseries 3.90} & 16.50 & 0.75 & 2.38 & 3.39 & 3.98 & {\bfseries 3.08} & 3.46 \\
-        7 kHz & 3.54G & 3.29 & 0.947 & 4.40 & 3.57 & 3.88 & 16.11 & 0.75 & 2.35 & 3.39 & 3.96 & 3.07 & 3.45 \\
-        6 kHz & 3.28G & 3.29 & 0.947 & 4.42 & 3.60 & 3.89 & 16.75 & 0.72 & {\bfseries 2.26} & 3.39 & 3.97 & 3.07 & {\bfseries 3.46} \\
-        \rowcolor{TFTableGray} 5 kHz & 3.02G & 3.29 & 0.947 & 4.41 & 3.60 & 3.88 & {\bfseries 16.84} & {\bfseries 0.72} & 2.27 & 3.38 & {\bfseries 3.98} & 3.07 & {\bfseries 3.46} \\
-        4 kHz & 2.76G & 3.27 & 0.947 & 4.41 & 3.56 & 3.87 & 16.29 & 0.73 & 2.31 & 3.39 & 3.97 & 3.07 & 3.45 \\
-        3 kHz & {\bfseries 2.50G} & 3.23 & 0.946 & 4.40 & 3.51 & 3.84 & 15.41 & 0.78 & 2.38 & {\bfseries 3.40} & 3.92 & 3.06 & 3.45 \\
+        8 kHz & 3.81G & 3.46 & 3.39 & 3.98 & \best{3.08} & 16.50 & \best{3.31} & 0.946 & 0.866 & \best{4.42} & \best{3.60} & \best{3.90} & 0.75 & 2.38 \\
+        7 kHz & 3.54G & 3.45 & 3.39 & 3.96 & 3.07 & 16.11 & 3.29 & 0.947 & 0.867 & 4.40 & 3.57 & 3.88 & 0.75 & 2.35 \\
+        6 kHz & 3.28G & \best{3.46} & 3.39 & 3.97 & 3.07 & 16.75 & 3.29 & \best{0.947} & \best{0.868} & 4.42 & 3.60 & 3.89 & 0.72 & \best{2.26} \\
+        \rowcolor{TFTableGray} 5 kHz & 3.02G & \best{3.46} & 3.38 & \best{3.98} & 3.07 & \best{16.83} & 3.29 &  \best{0.947} &  \best{0.868} & 4.40 &  \best{3.60} & 3.88 & \best{0.72} & 2.27 \\
+        4 kHz & 2.76G & 3.45 & 3.38 & 3.97 & 3.07 & 16.29 & 3.27 & 0.947 & 0.867 & 4.41 & 3.56 & 3.87 & 0.73 & 2.31 \\
+        3 kHz & \best{2.50G} & 3.45 & \best{3.40} & 3.92 & 3.06 & 15.41 & 3.23 & 0.946 & 0.867 & 4.40 & 3.51 & 3.84 & 0.78 & 2.38 \\
         \hline
     \end{tabular}
     }
-    \caption[Low-band cutoff ablation]{Low-band cutoff ablation. All rows use the 48 kHz 20-epoch setting with VCTK clean speech and DNS full-band noise. Parameter counts are identical across cutoff settings and are omitted. MACs are model-side estimates.}
+    \caption[Low-band cutoff ablation]{Low-band cutoff ablation. All rows use the 48 kHz VCTK-DNS setting. Parameter counts are identical and omitted; MACs are model-side estimates.}
     \label{tab:cutoff_ablation_48k}
 \end{table}

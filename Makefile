@@ -1,6 +1,5 @@
-TEXBIN ?= $(HOME)/.TinyTeX/bin/x86_64-linux
-PDFLATEX ?= $(if $(wildcard $(TEXBIN)/pdflatex),$(TEXBIN)/pdflatex,pdflatex)
-BIBTEX ?= $(if $(wildcard $(TEXBIN)/bibtex),$(TEXBIN)/bibtex,bibtex)
+PDFLATEX ?= /usr/bin/pdflatex
+BIBTEX ?= /usr/bin/bibtex
 
 thesis:
 	@$(PDFLATEX) $@

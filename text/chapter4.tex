@@ -7,16 +7,18 @@
 \subsection{Datasets and Protocols}
 \label{sec:exp_datasets_protocols}
 
-We evaluate TF-Rehancer using a 16 kHz wideband benchmark and a 48 kHz controlled ablation setting. The 16 kHz setting uses the official VoiceBank+DEMAND (VBD) corpus to compare the proposed model with lightweight speech enhancement baselines. The 48 kHz setting uses VCTK clean speech mixed with DNS full-band noise to analyze the architectural components of TF-Rehancer under full-band processing.
+We evaluate TF-Rehancer using 48 kHz full-band results, a 16 kHz wideband benchmark, and a 48 kHz controlled ablation setting. The 48 kHz results use the VBD 48 kHz test set to compare TF-Rehancer with published full-band references and to analyze architectural components under full-band processing. The 16 kHz setting uses the official VoiceBank+DEMAND (VBD) corpus to compare the proposed model with lightweight speech enhancement baselines.
 
 For the 16 kHz comparison, we use the official VBD paired speech enhancement corpus. The official training partition contains 28 speakers and is split into 10,413 training utterances and 1,159 validation utterances using a fixed random seed. Evaluation is performed on the official 824-utterance test set, which contains unseen speakers.
 
-For the 48 kHz ablation study, noisy mixtures are synthesized from VCTK~\cite{veaux2017vctk} clean speech and DNS~\cite{reddy2020dns} full-band noise. Each model is trained for 20 epochs and evaluated on the VBD 48 kHz test set. These experiments are intended for controlled component analysis, not for ranking against external full-band systems.
+For the controlled 48 kHz ablation experiments, noisy mixtures are synthesized from VCTK~\cite{veaux2017vctk} clean speech and DNS~\cite{reddy2020dns} full-band noise. Evaluation is performed on the VBD 48 kHz test set. The VBD 48 kHz test set is the official 824-utterance VoiceBank+DEMAND test split prepared at 48 kHz with paired clean and noisy files, not a DNS-remixed test set. The ablation experiments are intended for controlled component analysis.
 
 \subsection{Model Configuration}
 \label{sec:exp_model_configuration}
 
-This chapter evaluates the final TF-Rehancer architecture described in Chapter~\ref{chap:proposed_method}. The main design principle is low-band encoder-guided refinement of observed high-band features in the full-band decoder. The model concentrates heavy encoding on the low-band representation, keeps observed high-band features in the decoder path, refines the decoder representation using the low-band encoder output, and estimates the enhanced spectrum through complex TF filtering over the original noisy STFT.
+This chapter evaluates the final TF-Rehancer architecture described in Chapter~\ref{chap:proposed_method}. The main design principle is low-band-guided full-band refinement. The model concentrates heavy encoding on the low-band representation, keeps observed high-band evidence in the decoder path, updates the high-band decoder tokens using the low-band encoder output as key/value context, and estimates the enhanced spectrum through complex TF filtering over the original noisy STFT.
+
+Unless otherwise specified, TF-Rehancer refers to the architecture that performs low-band-guided full-band refinement and complex TF filtering. For the 16 kHz comparison, we report a compact FastGRU-based configuration and a non-streaming TimeMHSA-EFN configuration; both variants share the same high-band update and filtering pipeline. These labels describe model configurations and are not used as measured real-time or streaming claims.
 
 All TF-Rehancer experiments use a 40 ms analysis window and a 20 ms frame shift. With this setting, both 16 kHz and 48 kHz configurations have a frequency spacing of 25 Hz. The default low-band cutoff is 5 kHz, corresponding to 201 full-resolution frequency bins and 101 embedded low-band tokens after the frequency-strided stem. Thus, the low-band encoder length is nearly fixed across 16 kHz and 48 kHz configurations, while the number of observed high-band decoder tokens increases in the 48 kHz setting.
 
@@ -27,33 +29,47 @@ Model complexity is reported using the number of parameters and model-side multi
 
 For locally trained TF-Rehancer runs, evaluation uses the checkpoint with the lowest validation loss. The default VoiceBank+DEMAND evaluation set contains 824 utterances.
 
-We use both full-reference and non-intrusive metrics. DNSMOS P.808 and DNSMOS P.835 SIG/BAK/OVRL are computed after resampling the waveform to 16 kHz. SCOREQ is computed in full-reference natural-speech mode after 16 kHz resampling. PESQ-WB, STOI, and ESTOI are also computed after 16 kHz resampling. Unless otherwise specified, SI-SDR is computed at the task sampling rate.
+We use both full-reference and non-intrusive metrics. DNSMOS P.808 and DNSMOS P.835 SIG/BAK/OVL are computed after resampling the waveform to 16 kHz. SCOREQ is computed in full-reference natural-speech mode after 16 kHz resampling. PESQ, STOI, and ESTOI are also computed after 16 kHz resampling. Unless otherwise specified, SI-SDR is computed at the task sampling rate.
 
-For the 48 kHz analysis, we additionally report full-band spectral metrics because many standard speech enhancement metrics are computed after 16 kHz resampling and do not directly evaluate the upper-frequency region. We report full-band LSD, MCD, and SI-SDR for 48 kHz outputs. DNSMOS SIG/BAK/OVRL refers to DNSMOS P.835, while CSIG/CBAK/COVL refers to composite full-reference metrics.
+For the 48 kHz analysis, we additionally report full-band spectral metrics because many standard speech enhancement metrics are computed after 16 kHz resampling and do not directly evaluate the upper-frequency region. We report full-band LSD, MCD, and SI-SDR for 48 kHz outputs. DNSMOS SIG/BAK/OVL refers to DNSMOS P.835, while CSIG/CBAK/COVL refers to composite full-reference metrics.
 
-\section{16 kHz Speech Enhancement and Efficiency}
+\section{Experimental Results}
+\label{sec:exp_results}
+
+\subsection{48 kHz Full-Band Results}
+\label{sec:exp_48k_fullband_results}
+
+Table~\ref{tab:reference_positioning_48k} reports 48 kHz full-band results on the VBD 48 kHz test set together with PercepNet and DeepFilterNet2 references. The TF-Rehancer (on) row is the DNS4-trained online configuration evaluated on the VBD 48 kHz test set.
+
+\input{tables/reference_positioning_48k}
+
+Table~\ref{tab:reference_positioning_48k} shows that TF-Rehancer (on) obtains competitive full-reference scores on the VBD 48 kHz test set relative to published full-band references. Its PESQ, STOI, CBAK, COVL, and SI-SDR values are above the listed PercepNet and DeepFilterNet2 references, while the simplified DeepFilterNet2 reference remains slightly higher in CSIG and the DeepFilterNet2 rows report lower MACs. The available DeepFilterNet2 SI-SDR values are included as official-checkpoint evaluation context. Because most reference-row values are taken from prior papers rather than locally re-evaluated, the table should be read as a published-reference comparison rather than a strict direct re-evaluation.
+
+\subsection{Wideband Results}
 \label{sec:exp_16k_efficiency}
 
-We first evaluate the 16 kHz configuration on a standard wideband benchmark to compare enhancement quality and computational cost.
+We next evaluate the 16 kHz configuration on a standard wideband benchmark to compare enhancement quality and computational cost.
 
-Table~\ref{tab:voicebank_demand_external} reports 16 kHz results without a separate source column. BSRNN follows the FastEnhancer paper~\cite{ahn2025fastenhancer}. FastEnhancer-S and -M use the released checkpoints and local evaluation. TF-Rehancer uses the same evaluator on the 824-utterance VBD test set. Therefore, the FastEnhancer and TF-Rehancer rows provide the closest same-evaluator comparison, whereas the BSRNN row serves as benchmark context.
+Table~\ref{tab:voicebank_demand_external} reports the 16 kHz VoiceBank+DEMAND results. The FastEnhancer-M row is the paper-reported reference. TF-Rehancer (on) denotes the compact FastGRU-based configuration, and TF-Rehancer (off) denotes the non-streaming TimeMHSA-EFN configuration. The on/off labels distinguish model configurations and do not indicate measured real-time or streaming performance.
 
 \input{tables/voicebank_demand_external}
 
-Relative to the locally evaluated FastEnhancer-M checkpoint, TF-Rehancer improves PESQ-WB and DNSMOS SIG/BAK/OVRL. It also uses lower model-side MACs and a similar number of parameters. FastEnhancer-M remains better in DNSMOS P.808, SCOREQ, SI-SDR, STOI, and ESTOI. Relative to FastEnhancer-S, TF-Rehancer improves PESQ-WB, DNSMOS SIG/BAK/OVRL, SI-SDR, STOI, and ESTOI, but requires more computation. Therefore, the 16 kHz result supports a competitive quality-efficiency trade-off rather than uniform dominance.
+Relative to the paper-reported FastEnhancer-M reference, TF-Rehancer (on) uses fewer model-side MACs at a similar parameter scale. It reports higher PESQ, SI-SDR, and DNSMOS SIG, BAK, and OVL values, while FastEnhancer-M remains slightly better in SCOREQ and ESTOI. TF-Rehancer (off) reports lower SCOREQ and higher PESQ, SI-SDR, STOI, ESTOI, DNSMOS BAK, and DNSMOS OVL values at higher parameter count and MACs than TF-Rehancer (on). Therefore, the 16 kHz result is consistent with the intended interpretation: the proposed design reports competitive values in a compact configuration and higher quality metrics in a non-streaming TimeMHSA-EFN configuration.
 
-The BSRNN comparison should not be interpreted as a same-evaluator superiority claim. It indicates that TF-Rehancer reaches a competitive region relative to a published lightweight reference, while using more parameters and MACs than the reported BSRNN configuration.
-
-\section{Full-Band Architecture Ablations}
-\label{sec:exp_fullband_ablation}
-
-\input{tables/main_comparison}
-
-The direct mapping head is weaker than complex TF filtering across the reported metric families. This suggests that filtering-based output estimation is more reliable than direct spectrum mapping in the 48 kHz ablation setting. The w/o decoder MHCA variant shows a mixed trend. It improves PESQ, STOI, CSIG, COVL, and DNSMOS SIG, but degrades SI-SDR, LSD, MCD, and DNSMOS BAK/OVRL. Thus, decoder MHCA should be interpreted as changing the trade-off between perceptual scores and spectral fidelity, rather than as a uniformly beneficial module.
-
-\section{Low-Band Cutoff Sensitivity}
+\subsection{Low-Band Cutoff}
 \label{sec:exp_cutoff_sensitivity}
+
+We next vary the low-band cutoff from 3 kHz to 8 kHz under the 48 kHz ablation setting. All cutoff variants use the same model size and are evaluated on the VBD 48 kHz test set.
 
 \input{tables/cutoff_ablation_48k}
 
-The cutoff sweep shows a trade-off among computation, perceptual quality, and spectral fidelity. Larger cutoffs increase computation and improve some perceptual scores, whereas smaller cutoffs reduce MACs but can degrade full-band and high-band spectral fidelity. Under the 48 kHz ablation setting, we use 5 kHz as the default cutoff because it provides a balanced operating point between computational cost, SI-SDR, and high-band spectral metrics.
+The cutoff sweep shows a trade-off among computation, perceptual quality, and spectral fidelity. Larger cutoffs increase computation and improve some perceptual scores, whereas smaller cutoffs reduce MACs but can degrade full-band spectral fidelity as measured by LSD and MCD. Under the controlled 48 kHz ablation setting, we use 5 kHz as the default cutoff because it provides a balanced operating point between computational cost, SI-SDR, and full-band spectral metrics.
+
+\subsection{Architecture Ablations}
+\label{sec:exp_fullband_ablation}
+
+Table~\ref{tab:main_comparison} compares the default TF-Rehancer architecture with two variants: one without decoder MHCA and one that replaces complex TF filtering with direct spectrum mapping. This ablation is intended to examine the effects of decoder cross-attention and filtering-based output estimation.
+
+\input{tables/main_comparison}
+
+The direct mapping head is weaker than complex TF filtering across the reported metric families. This suggests that filtering-based output estimation is more reliable than direct spectrum mapping in the 48 kHz ablation setting. The w/o decoder MHCA variant remains stronger than direct mapping, but it is lower than TF-Rehancer on most full-reference and spectral metrics. DNSMOS P.808 is tied after rounding, and DNSMOS SIG is slightly higher for the w/o decoder MHCA row. Thus, the controlled ablation shows that decoder cross-attention is more effective than removing it for the main full-reference and spectral trends, while the broader low-band-guided refinement path remains indirectly assessed.

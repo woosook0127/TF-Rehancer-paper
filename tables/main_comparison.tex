@@ -1,20 +1,21 @@
 \begin{table}[ht!]
     \centering
+    \providecommand{\best}[1]{\textbf{#1}}
     \small
-    \setlength{\tabcolsep}{1.2pt}
+    \setlength{\tabcolsep}{1.0pt}
     \renewcommand{\arraystretch}{1.15}
     \resizebox{\textwidth}{!}{
-    \begin{tabular}{lcccccccccccc}
+    \begin{tabular}{lccccccccccccc}
         \hline
-        \multirow{2}{*}{Method} & \multirow{2}{*}{PESQ$\uparrow$} & \multirow{2}{*}{STOI$\uparrow$} & \multirow{2}{*}{CSIG$\uparrow$} & \multirow{2}{*}{CBAK$\uparrow$} & \multirow{2}{*}{COVL$\uparrow$} & \multirow{2}{*}{SI-SDR$\uparrow$} & \multirow{2}{*}{LSD$\downarrow$} & \multirow{2}{*}{MCD$\downarrow$} & \multicolumn{3}{c}{DNSMOS(P.835)$\uparrow$} & \multirow{1}{*}{DNSMOS} \\
-        & & & & & & & & & SIG & BAK & OVL & (P.808)$\uparrow$\\
+        \multirow{2}{*}{Method} & \multirow{1}{*}{DNSMOS} & \multicolumn{3}{c}{DNSMOS(P.835)} & \multirow{2}{*}{SI-SDR$\uparrow$} & \multirow{2}{*}{PESQ$\uparrow$} & \multirow{2}{*}{STOI$\uparrow$} & \multirow{2}{*}{ESTOI$\uparrow$} & \multirow{2}{*}{CSIG$\uparrow$} & \multirow{2}{*}{CBAK$\uparrow$} & \multirow{2}{*}{COVL$\uparrow$} & \multirow{2}{*}{LSD$\downarrow$} & \multirow{2}{*}{MCD$\downarrow$} \\
+        & (P.808)$\uparrow$ & SIG$\uparrow$ & BAK$\uparrow$ & OVL$\uparrow$ & & & & & & & & & \\
         \hline
-        \rowcolor{TFTableGray} TF-Rehancer &  {\bfseries 3.29} & 0.947 & 4.41 & {\bfseries 3.60} & 3.88 & {\bfseries 16.84} & {\bfseries 0.72} & {\bfseries 2.27} & 3.38 & {\bfseries 3.98} & {\bfseries 3.07} & {\bfseries 3.46} \\
-        w/o Decoder MHCA & {\bfseries 3.29} & {\bfseries 0.948} & {\bfseries 4.44} & 3.59 & {\bfseries 3.90} & 16.38 & 0.74 & 2.28 & {\bfseries 3.39} & 3.96 &  {\bfseries 3.07} & {\bfseries 3.46} \\
-        w/ Direct Mapping & 3.05 & 0.940 & 4.24 & 3.40 & 3.66 & 14.90 & 0.78 & 2.52 & 3.35 & 3.96 & 3.03 & 3.44 \\
+        \rowcolor{TFTableGray} TF-Rehancer & \best{3.45} & 3.38 & \best{3.98} & \best{3.07} & \best{16.70} & \best{3.29} & \best{0.948} & \best{0.868} & \best{4.40} & \best{3.59} & \best{3.88} & \best{0.73} & \best{2.28} \\
+        w/o Decoder MHCA & \best{3.45} & \best{3.39} & 3.96 & 3.05 & 16.27 & 3.14 & 0.944 & 0.858 & 4.35 & 3.52 & 3.77 & 0.77 & 2.50 \\
+        w/ Direct Mapping & 3.44 & 3.35 & 3.96 & 3.03 & 14.90 & 3.05 & 0.940 & 0.853 & 4.24 & 3.40 & 3.66 & 0.78 & 2.52 \\
         \hline
     \end{tabular}
     }
-    \caption[48 kHz architecture ablation]{48 kHz architecture ablation on the VoiceBank+DEMAND 48 kHz test set. All models are trained for 20 epochs using VCTK clean speech and DNS full-band noise and evaluated on the VoiceBank+DEMAND 48 kHz test set. These results are intended for controlled component analysis, not for ranking against external full-band systems.}
+    \caption[48 kHz architecture ablation]{48 kHz architecture ablation on the VoiceBank+DEMAND 48 kHz test set. All models are trained using VCTK clean speech and DNS full-band noise and evaluated on the VBD 48 kHz test set. The table is used for controlled component analysis rather than external full-band system ranking.}
     \label{tab:main_comparison}
 \end{table}

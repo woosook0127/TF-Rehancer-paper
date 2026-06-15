@@ -1,21 +1,21 @@
 \begin{table}[ht!]
     \centering
+    \providecommand{\best}[1]{\textbf{#1}}
     \small
     \setlength{\tabcolsep}{1.2pt}
     \renewcommand{\arraystretch}{1.15}
     \resizebox{\textwidth}{!}{
     \begin{tabular}{lccccccccccc}
         \hline
-        \multirow{2}{*}{Method} & \multirow{2}{*}{Params$\downarrow$} & \multirow{2}{*}{MACs$\downarrow$} & \multirow{2}{*}{PESQ-WB$\uparrow$} & \multirow{2}{*}{STOI$\uparrow$} & \multirow{2}{*}{ESTOI$\uparrow$} & \multirow{2}{*}{SI-SDR$\uparrow$} & \multirow{1}{*}{SCOREQ$\downarrow$} & \multicolumn{3}{c}{DNSMOS(P.835)} & \multirow{1}{*}{DNSMOS} \\
-        & & & & & & & & SIG$\uparrow$ & BAK$\uparrow$ & OVL$\uparrow$ & (P.808)$\uparrow$ \\
+        \multirow{2}{*}{Method} & \multirow{2}{*}{Params$\downarrow$} & \multirow{2}{*}{MACs} & \multirow{1}{*}{DNSMOS} & \multicolumn{3}{c}{DNSMOS(P.835)} & \multirow{2}{*}{SCOREQ$\downarrow$} & \multirow{2}{*}{SI-SDR$\uparrow$} & \multirow{2}{*}{PESQ$\uparrow$} & \multirow{2}{*}{STOI$\uparrow$} & \multirow{2}{*}{ESTOI$\uparrow$} \\
+        & & & (P.808)$\uparrow$ & SIG$\uparrow$ & BAK$\uparrow$ & OVL$\uparrow$ & & & & & \\
         \hline
-        BSRNN                                   & 0.334M    & {\bfseries 0.25G}   & 3.06             & 0.942             & 0.855             & 18.90            & 0.303             & 3.30             & 4.00             & 3.07             & 3.44 \\
-        FastEnhancer-M                          & 0.492M    & 2.90G            & 3.24             & 0.950             & {0.873}           & 19.40             & {\bfseries 0.243}    & 3.39             & 4.02             & 3.11             & 3.48 \\
-        \rowcolor{TFTableGray} TF-Rehancer (on) & 0.470M    & 1.89G            & {3.33}            & 0.950             & 0.872             & 19.44            & 0.244             & 3.41              & {4.04}       & {3.13}           & {\bfseries 3.49} \\
-        \rowcolor{TFTableGray} TF-Rehancer (off)& 0.615M    & 2.00G            & {\bfseries 3.41}    & {\bfseries 0.953}             & {\bfseries 0.876} & {\bfseries 19.68}  & 0.249             & {\bfseries 3.42}    & {\bfseries 4.07}    & {\bfseries 3.16}    & {\bfseries 3.49} \\
+        FastEnhancer-M~\cite{ahn2025fastenhancer} & 0.49M & 2.90G & 3.48 & 3.39 & 4.02 & 3.11 & 0.243 & 19.40 & 3.24 & 0.950 & 0.873 \\
+        \rowcolor{TFTableGray} TF-Rehancer (on) & \best{0.47M} & \best{1.89G} & \best{3.49} & \best{3.41} & 4.04 & 3.13 & 0.244 & 19.44 & 3.33 & 0.950 & 0.872 \\
+        \rowcolor{TFTableGray} TF-Rehancer (off) & 0.62M & 2.00G & \best{3.49} & \best{3.41} & \best{4.06} & \best{3.14} & \best{0.242} & \best{19.72} & \best{3.40} & \best{0.953} & \best{0.876} \\
         \hline
     \end{tabular}
     }
-    \caption[VoiceBank+DEMAND 16 kHz test results]{VoiceBank+DEMAND 16 kHz test results. MACs are model-side estimates and exclude STFT/iSTFT.}
+    \caption[VoiceBank+DEMAND 16 kHz test results]{VoiceBank+DEMAND 16 kHz test results. FastEnhancer-M uses paper-reported values~\cite{ahn2025fastenhancer}, while TF-Rehancer rows are locally evaluated on the 824-utterance VBD test set. MACs are model-side estimates and exclude STFT/iSTFT.}
     \label{tab:voicebank_demand_external}
 \end{table}

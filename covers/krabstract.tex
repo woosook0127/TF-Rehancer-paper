@@ -1,2 +1,5 @@
-% Korean abstract placeholder.
-% This Echo mirror does not install the protected approval files.
+본 논문은 직접적인 full-band 음성 향상을 위한 time-frequency 영역 음성 향상 구조인 TF-Rehancer를 제안한다. 제안 모델은 48 kHz 음성의 고주파 성분을 대역 제한 입력으로부터 새로 생성해야 하는 결손 정보가 아니라, 입력에 이미 존재하지만 잡음에 의해 훼손된 관측된 spectral evidence로 다룬다. TF-Rehancer는 low-band-guided full-band refinement를 수행한다. 즉, 저대역 speech structure를 encode하고, 관측된 upper-band evidence를 decoder path에 보존하며, 원 noisy STFT에 대한 local complex time-frequency filtering으로 enhanced spectrum을 추정한다.
+
+본 논문은 TF-Rehancer를 세 가지 관점에서 평가한다. 첫째, 16 kHz VoiceBank+DEMAND benchmark에서 compact FastGRU-based TF-Rehancer configuration은 0.47M parameters와 1.89G model-side MACs로 PESQ 3.33, DNSMOS SIG 3.41, DNSMOS BAK 4.04, DNSMOS OVL 3.13을 달성한다. Paper-reported FastEnhancer-M reference와 비교했을 때, 이 configuration은 더 낮은 model-side MACs로 PESQ, SI-SDR, DNSMOS P.835에서 더 높은 수치를 보고하지만, FastEnhancer-M은 SCOREQ와 ESTOI에서 약간 더 강하다.
+
+둘째, VoiceBank+DEMAND 48 kHz test set에서 DNS4-trained online TF-Rehancer configuration은 published PercepNet 및 DeepFilterNet2 reference와 비교해 competitive full-reference score를 달성한다. 셋째, controlled 48 kHz ablation은 complex TF filtering을 direct spectrum mapping으로 대체하면 full-reference, spectral, non-intrusive metric이 저하됨을 보인다. 또한 decoder cross-attention을 사용한 경우가 제거한 경우보다 대부분의 full-reference 및 spectral metric에서 더 효과적임을 보이며, 5 kHz low-band cutoff는 controlled ablation setting에서 균형적인 operating point를 제공한다.

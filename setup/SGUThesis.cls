@@ -123,11 +123,12 @@
 \RequirePackage{amsmath,amssymb,textcomp,bm}
 \RequirePackage[pagewise]{lineno}
 \RequirePackage{fix-cm}
-\RequirePackage[cjk]{kotex}
+\RequirePackage{kotex}
 \RequirePackage[nomessages]{fp}
 \RequirePackage{fancyhdr}
 \RequirePackage{pdfpages}
 \RequirePackage{multirow}
+\RequirePackage{etoolbox}
 
 %% Caption의 줄간격 설정
 \RequirePackage{caption,setspace}
@@ -731,5 +732,3 @@
   \setlength\parindent{0mm}
   \addevenpage
 }
-
-
