@@ -1,3 +1,7 @@
+## 논문 제목
+Full-Band Speech Enhancement via Low-Band-Guided Refinement
+
+## Abstract
 Speech enhancement for 48 kHz audio is increasingly important in high-fidelity speech communication and media applications, but modeling spectra up to 24 kHz substantially increases the computational cost of time-frequency neural networks. Existing full-band systems often reduce this burden using critical-band or ERB compression, band-split embeddings, or multi-band processing. Although these strategies are effective for practical enhancement, fixed or coarse frequency representations may limit the ability of the model to exploit fine-grained high-frequency observations that are already present in the noisy input. This work therefore focuses on efficient full-band speech enhancement without relying on fixed perceptual-band compression.
 
 This work presents TF-Rehancer, a Transformer-based time-frequency model for low-band-guided refinement in full-band speech enhancement. Rather than applying fixed perceptual-band compression or encoding all frequency bins with a heavy full-band encoder, TF-Rehancer concentrates heavy analysis on the low-frequency region. The observed high-frequency region is kept as decoder-side query evidence, and its representation is refined using the low-band encoder output as key/value context. The refined high-band tokens are then combined with the low-band decoder tokens for full-band decoder modeling. Finally, the enhanced spectrum is estimated by applying local complex time-frequency filters to the original noisy STFT.

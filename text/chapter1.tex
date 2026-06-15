@@ -1,7 +1,7 @@
 \chapter{Introduction}
 \label{chap:introduction}
 
-Many established speech enhancement benchmarks and baselines are built around conventional 16 kHz wideband settings. In this setting, the upper-band spectral components contained in 48 kHz full-band speech are outside the model input. Direct 48 kHz full-band speech enhancement therefore presents a different operating condition: the model receives a noisy full-band signal, and the upper-band spectrum is available as noisy evidence to be enhanced. Although full-band enhancement has been explored in prior work, same-protocol references for direct 48 kHz full-band SE remain less established than conventional wideband evaluation.
+Many established speech enhancement benchmarks and baselines are built around conventional 16 kHz wideband settings. In this setting, the upper-band spectral components contained in 48 kHz full-band speech are outside the model input. Direct 48 kHz full-band speech enhancement therefore presents a different operating condition: the model receives a noisy full-band signal, and the upper-band spectrum is available as noisy evidence to be enhanced. Although full-band enhancement has been explored in prior work~\cite{valin2020percepnet,schroter2022deepfilternet,zhao2022frcrn,yu2022dmfnet}, same-protocol references for direct 48 kHz full-band SE remain less established than conventional wideband evaluation.
 
 Speech bandwidth extension and speech super-resolution target a different information condition. These tasks aim to reconstruct missing or degraded high-frequency content from band-limited inputs~\cite{liu2022voicefixer,andreev2022hifiplusplus}, whereas 48 kHz full-band SE starts from a noisy full-band observation. Therefore, the key issue is not to synthesize the upper band after wideband enhancement, but to suppress noise over the full observed spectrum while preserving useful spectral evidence. This distinction motivates a direct full-band enhancement approach in which the high-frequency region is treated as part of the noisy observation rather than as a missing component to be generated afterward.
 
@@ -16,7 +16,7 @@ From the attention perspective, the low-band encoder output provides key/value c
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.92\textwidth]{figures/Overall_Model_Flow.png}
-    \caption[Conceptual overview of TF-Rehancer]{Conceptual overview of TF-Rehancer. The low-band encoder output provides key/value context for updating the observed high-band decoder tokens. The updated representation is then processed by full-sequence decoder modules and used to estimate local complex filters over the original noisy STFT.}
+    \caption[Conceptual overview of TF-Rehancer]{Conceptual overview of TF-Rehancer.}
     \label{fig:intro_tf_rehancer_overview}
 \end{figure}
 
